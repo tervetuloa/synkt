@@ -4,6 +4,7 @@ from collections.abc import Callable
 from typing import Any
 
 from synkt.interceptors.base import BaseInterceptor
+from synkt.mocking._registry import get_mock_registry
 from synkt.trace.storage import get_current_trace
 
 
@@ -20,7 +21,43 @@ class LangGraphInterceptor(BaseInterceptor):
         self.graph = graph
         self._original_nodes: dict[str, Callable[..., Any]] = {}
         self._previous_node_name = "start"
+        self._wrap_tools()
         self._wrap_nodes()
+
+    def _wrap_tools(self) -> None:
+        """Wrap tool callables so active mocks can short-circuit execution."""
+        for _, node_obj in self.graph.nodes.items():
+            if not hasattr(node_obj, "runnable"):
+                continue
+
+            runnable = node_obj.runnable
+            if not hasattr(runnable, "tools_by_name"):
+                continue
+
+            for tool_name, tool_obj in runnable.tools_by_name.items():
+                runnable.tools_by_name[tool_name] = self._create_tool_wrapper(tool_name, tool_obj)
+
+    def _create_tool_wrapper(self, tool_name: str, original_tool: Any) -> Callable[..., Any]:
+        """Create wrapper that checks registry for mock behavior before calling real tool."""
+
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            registry = get_mock_registry()
+            mock_config = registry.get(tool_name)
+
+            if mock_config is not None:
+                side_effect = mock_config.get("side_effect")
+                if side_effect is not None:
+                    return side_effect(*args, **kwargs)
+                return mock_config.get("return_value")
+
+            if callable(original_tool):
+                return original_tool(*args, **kwargs)
+            if hasattr(original_tool, "invoke"):
+                return original_tool.invoke(*args, **kwargs)
+
+            raise TypeError(f"Unsupported tool type for '{tool_name}': {type(original_tool)!r}")
+
+        return wrapper
 
     def _wrap_nodes(self) -> None:
         """Wrap each node runnable/function to capture transitions."""

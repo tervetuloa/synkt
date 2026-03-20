@@ -6,6 +6,7 @@ from synkt.assertions.coordination import assert_handoff, assert_parallel_execut
 from synkt.assertions.system import assert_cost_under, assert_no_loop
 from synkt.assertions.tools import assert_no_tool_called, assert_tool_called
 from synkt.interceptors.langgraph import LangGraphInterceptor
+from synkt.mocking import mock_tool
 from synkt.trace.models import AgentMessage, AgentTrace, ToolCall
 from synkt.trace.pretty import format_trace, print_trace
 from synkt.trace.storage import get_current_trace
@@ -24,5 +25,6 @@ __all__ = [
 	"get_current_trace",
 	"format_trace",
 	"print_trace",
+	"mock_tool",
 ]
 

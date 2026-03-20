@@ -84,6 +84,37 @@ See real working examples:
 - Mock agents for isolation
 - Works with LangGraph today, with CrewAI and AutoGen adapters planned
 
+## Mocking Tool Responses
+
+Test agent workflows without calling real external APIs:
+
+```python
+from synkt import mock_tool
+
+
+def test_weather_agent():
+    with mock_tool("get_weather", return_value="sunny and 72F"):
+        result = agent.invoke({"city": "San Francisco"})
+        assert "sunny" in result
+```
+
+Mock with conditional logic:
+
+```python
+from synkt import mock_tool
+
+
+def mock_refund(order_id: str, amount: float) -> dict[str, str]:
+    if amount > 100:
+        return {"status": "requires_approval"}
+    return {"status": "approved"}
+
+
+with mock_tool("process_refund", side_effect=mock_refund):
+    result = agent.invoke({"amount": 150})
+    assert "requires_approval" in result
+```
+
 ## Contributing
 
 PRs are welcome. A good starting point:
