@@ -1,0 +1,19 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .background { fill: #1a1a1a; }
+      .foreground { fill: white; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .background { fill: white; }
+      .foreground { fill: #1a1a1a; }
+    }
+  </style>
+  <rect class="background" width="180" height="180" rx="37" />
+  <circle class="foreground" cx="90" cy="65" r="18" />
+  <circle class="foreground" cx="50" cy="120" r="14" />
+  <circle class="foreground" cx="130" cy="120" r="14" />
+  <line x1="90" y1="83" x2="55" y2="108" stroke-width="4" class="foreground" stroke="currentColor" style="stroke: var(--foreground, white)" />
+  <line x1="90" y1="83" x2="125" y2="108" stroke-width="4" class="foreground" stroke="currentColor" style="stroke: var(--foreground, white)" />
+  <line x1="55" y1="132" x2="125" y2="132" stroke-width="4" class="foreground" stroke="currentColor" style="stroke: var(--foreground, white)" />
+</svg>
